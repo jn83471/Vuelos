@@ -10,11 +10,16 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.JobUpdate = exports.JobDelete = exports.JobSearch = exports.JobGetAll = exports.JobPost = void 0;
+const express_validator_1 = require("express-validator");
 const job_1 = require("../models/job");
 const { response, request } = require('express');
 const bcryptjs = require('bcryptjs');
 const Usuario = require('../models/planes');
 const JobPost = (req = request, res = response) => __awaiter(void 0, void 0, void 0, function* () {
+    const errors = (0, express_validator_1.validationResult)(req);
+    if (!errors.isEmpty()) {
+        return res.json({ errors });
+    }
     const { name, controlUsuarios = false, controlClientes = false, controlBoletos = false, viajesCorporativos = false, EstatusAviones = false, Estatus = true } = req.body;
     try {
         const job = new job_1.jobModel({ name, controlUsuarios, controlClientes, controlBoletos, viajesCorporativos, EstatusAviones, Estatus });
@@ -27,7 +32,7 @@ const JobPost = (req = request, res = response) => __awaiter(void 0, void 0, voi
 });
 exports.JobPost = JobPost;
 const JobGetAll = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const job = yield job_1.jobModel.find();
+    const job = yield job_1.jobModel.find().limit(100);
     return res.json(job);
 });
 exports.JobGetAll = JobGetAll;
@@ -39,12 +44,19 @@ exports.JobSearch = JobSearch;
 const JobDelete = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     const job = yield job_1.jobModel.findOne({ "_id": id });
+    if (!job) {
+        return res.json({ msg: "No se encontro el puesto espesificado" });
+    }
     job.Estatus = !job.Estatus;
     job.save();
     return res.json(job);
 });
 exports.JobDelete = JobDelete;
 const JobUpdate = (req = request, res = response) => __awaiter(void 0, void 0, void 0, function* () {
+    const errors = (0, express_validator_1.validationResult)(req);
+    if (!errors.isEmpty()) {
+        return res.json({ errors });
+    }
     const { name, controlUsuarios = false, controlClientes = false, controlBoletos = false, viajesCorporativos = false, EstatusAviones = false, Estatus = true } = req.body;
     const { id } = req.params;
     try {

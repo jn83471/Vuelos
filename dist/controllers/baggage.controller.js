@@ -9,32 +9,29 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Rolespost = void 0;
+exports.bagaggeGetAll = exports.bagaggePost = void 0;
 const express_validator_1 = require("express-validator");
-const role_1 = require("../models/role");
+const bagagge_1 = require("../models/bagagge");
 const { response, request } = require('express');
-const bcryptjs = require('bcryptjs');
-const Usuario = require('../models/role');
-const Rolespost = (req = request, res = response) => __awaiter(void 0, void 0, void 0, function* () {
+const bagaggePost = (req = request, res = response) => __awaiter(void 0, void 0, void 0, function* () {
     const errors = (0, express_validator_1.validationResult)(req);
     if (!errors.isEmpty()) {
         return res.json({ errors });
     }
-    const { body } = req;
-    const usuario = yield role_1.RoleModel.find({ $or: [{ "key": body.key }, { 'displayname': body.displayname }] });
-    if (usuario.length > 0) {
-        return res.status(400).json({
-            msg: 'El rol ya existente'
-        });
-    }
+    const { boleto, producto, altura, peso, estatus = 0 } = req.body;
     try {
-        const rol = new role_1.RoleModel({ "displayname": body.displayname, "key": body.key, "level": body.level });
-        yield rol.save();
-        res.json(rol);
+        const bagagge = new bagagge_1.bagaggeModel({ boleto, producto, altura, peso, estatus });
+        yield bagagge.save();
+        return res.json(bagagge);
     }
     catch (error) {
-        res.send(error);
+        return res.send(error);
     }
 });
-exports.Rolespost = Rolespost;
-//# sourceMappingURL=Role.controller.js.map
+exports.bagaggePost = bagaggePost;
+const bagaggeGetAll = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const job = yield bagagge_1.bagaggeModel.find().populate("boleto");
+    return res.json(job);
+});
+exports.bagaggeGetAll = bagaggeGetAll;
+//# sourceMappingURL=baggage.controller.js.map

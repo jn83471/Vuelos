@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { validationResult } from "express-validator";
 import { RoleModel } from "../models/role";
 
 const { response, request } = require('express');
@@ -8,8 +9,11 @@ const bcryptjs = require('bcryptjs');
 const Usuario = require('../models/role');
 
 
-
 export const Rolespost = async(req:Request = request, res:Response = response) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.json({errors});
+    }
     const {body}=req;
     const usuario = await RoleModel.find({ $or: [ {"key":body.key},{'displayname':body.displayname} ] });
     if(usuario.length>0){

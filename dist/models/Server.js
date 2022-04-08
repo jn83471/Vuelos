@@ -22,9 +22,9 @@ const job_routes_1 = __importDefault(require("../routes/job.routes"));
 const planes_routes_1 = __importDefault(require("../routes/planes.routes"));
 const flights_routes_1 = __importDefault(require("../routes/flights.routes"));
 const ticket_routes_1 = __importDefault(require("../routes/ticket.routes"));
+const bagagge_routes_1 = __importDefault(require("../routes/bagagge.routes"));
 class Server {
     constructor() {
-        this.jwt = require("jsonwebtoken");
         this.app = (0, express_1.default)();
         this.port = process.env.PORT || "8080";
         this.dbConnerction();
@@ -52,10 +52,11 @@ class Server {
         this.app.use("/api/planes/", planes_routes_1.default);
         this.app.use("/api/flights/", flights_routes_1.default);
         this.app.use("/api/ticket/", ticket_routes_1.default);
+        this.app.use("/api/bagagge/", bagagge_routes_1.default);
     }
     listen() {
         this.app.listen(this.port, () => {
-            console.log('servidor corriendo en' + this.port);
+            console.log('servidor corriendo en ' + this.port);
         });
     }
 }

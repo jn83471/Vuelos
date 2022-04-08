@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { validationResult } from "express-validator";
 import { ticketModel } from "../models/ticket";
 
 const { response, request } = require('express');
@@ -6,51 +7,68 @@ const { response, request } = require('express');
 
 
 export const ticketPost = async(req:Request = request, res:Response = response) => {
-    const {avionId,localizacion,municiopio,dia,diafinal,estado,status}=req.body;
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.json({errors});
+    }
+    const {vuelo, cliente, nombre, apellidoPaterno, apellidoMaterno, correo, Asiento,estatus=0 }=req.body;
     try{
-        const flights:any=new ticketModel({avionId,localizacion,municiopio,dia,diafinal,estado,status});
-        await flights.save();
-        return res.json(flights);
+        if(cliente!=null && cliente!="" && cliente!=undefined){
+            const ticket:any=new ticketModel({vuelo,cliente, Asiento,estatus });
+            await ticket.save();
+            return res.json(ticket);
+        }
+        else{
+            if(!nombre) return res.json({msg:"Se require un nombre"});
+            if(!apellidoPaterno) return res.json({msg:"Se require un apellido paterno"});
+            if(!apellidoMaterno) return res.json({msg:"Se require un apellido materno"});
+            if(!correo) return res.json({msg:"Se require un correo"});
+            
+            const ticket:any=new ticketModel({vuelo, nombre, apellidoPaterno, apellidoMaterno, correo, Asiento,estatus });
+            await ticket.save();
+            return res.json(ticket);
+        }
     }
     catch(error){
-        return res.send(error);
+        return res.send("Error: "+error);
     }
     
 }
 export const ticketGetAll = async(req:Request,res:Response)=>{
-    const {per_page=10,page=0}=req.query;
-    const skip=Number(per_page)*Number(page);
-    const job=await ticketModel.find().limit(per_page).skip(skip);
-    return res.json(job);
-}
-export const ticketSearch =async (req:Request,res:Response)=>{
-    const {per_page=10,page=0}=req.query;
-    const skip=Number(per_page)*Number(page);
-    const job=await ticketModel.find({ $or: [{municiopio:{ $regex: '.*' + req.params.name + '.*' }},{estado:{ $regex: '.*' + req.params.name + '.*' }}]}).limit(per_page).skip(skip);
-    return res.json(job);
+    const ticket=await ticketModel.find().populate("cliente").populate("vuelo");
+    return res.json(ticket);
 }
 export const ticketDelete=async (req:Request,res:Response)=>{
     const { id } = req.params;
-    const job=await ticketModel.findOne({"_id":id});
-    job.status=(job.status==0)?2:(job.status==1)?1:0;
-    job.save();
-    return res.json(job);
+    const ticket=await ticketModel.findOne({"_id":id}).populate("cliente").populate("vuelo");
+    ticket.estatus=(ticket.estatus==0)?2:(ticket.estatus==1)?1:0;
+    //.0 -agendado
+    //.1 -confirmado
+    //.2 -cancelado
+    ticket.save();
+    return res.json(ticket);
 }
 
 export const ticketUpdate = async(req:Request = request, res:Response = response) => {
-    const {avionId,localizacion,municiopio,dia,diafinal,estado,status}=req.body;
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.json({errors});
+    }
+    //return res.json({"a":"a"});
+    const {vuelo,cliente, nombre, apellidoPaterno, apellidoMaterno, correo, Asiento }=req.body;
     const {id}= req.params;
+    
     try{
-        const flights=await ticketModel.findOne({"_id":id});
-        flights.avionId=avionId;
-        flights.localizacion=localizacion;
-        flights.municiopio=municiopio;
-        flights.dia=dia;
-        flights.diafinal=diafinal;
-        flights.estado=estado;
-        flights.status=status;
-        flights.save();
-        return res.json(flights);
+        const ticket=await ticketModel.findOne({"_id":id});
+        ticket.vuelo=(vuelo!=null && vuelo!="" && vuelo!=undefined )?vuelo:ticket.vuelo;
+        ticket.cliente=cliente;
+        ticket.nombre=nombre;
+        ticket.apellidoPaterno=apellidoPaterno;
+        ticket.apellidoMaterno=apellidoMaterno;
+        ticket.correo=correo;
+        ticket.Asiento=Asiento;
+        ticket.save();
+        return res.json(ticket);
     }
     catch(error){
         return res.send(error);

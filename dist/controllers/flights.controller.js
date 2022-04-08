@@ -10,10 +10,15 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.flightsUpdate = exports.flightsDelete = exports.flightsSearch = exports.flightsGetAll = exports.flightsPost = void 0;
+const express_validator_1 = require("express-validator");
 const flights_1 = require("../models/flights");
 const { response, request } = require('express');
 const flightsPost = (req = request, res = response) => __awaiter(void 0, void 0, void 0, function* () {
-    const { avionId, localizacion, municiopio, dia, diafinal, estado, status } = req.body;
+    const errors = (0, express_validator_1.validationResult)(req);
+    if (!errors.isEmpty()) {
+        return res.json({ errors });
+    }
+    const { avionId, localizacion, municiopio, dia, diafinal, estado, status = 0 } = req.body;
     try {
         const flights = new flights_1.flightsModel({ avionId, localizacion, municiopio, dia, diafinal, estado, status });
         yield flights.save();
@@ -41,12 +46,19 @@ exports.flightsSearch = flightsSearch;
 const flightsDelete = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     const job = yield flights_1.flightsModel.findOne({ "_id": id });
+    if (!job) {
+        return res.json({ msg: "No se encontro el vuelo especificado" });
+    }
     job.status = (job.status == 0) ? 2 : (job.status == 1) ? 1 : 0;
     job.save();
     return res.json(job);
 });
 exports.flightsDelete = flightsDelete;
 const flightsUpdate = (req = request, res = response) => __awaiter(void 0, void 0, void 0, function* () {
+    const errors = (0, express_validator_1.validationResult)(req);
+    if (!errors.isEmpty()) {
+        return res.json({ errors });
+    }
     const { avionId, localizacion, municiopio, dia, diafinal, estado, status } = req.body;
     const { id } = req.params;
     try {
@@ -57,7 +69,7 @@ const flightsUpdate = (req = request, res = response) => __awaiter(void 0, void 
         flights.dia = dia;
         flights.diafinal = diafinal;
         flights.estado = estado;
-        flights.status = status;
+        flights.status = (status == null || status == undefined || status == "") ? flights.status : status;
         flights.save();
         return res.json(flights);
     }

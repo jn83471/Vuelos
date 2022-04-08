@@ -8,31 +8,62 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UsuariosUpdate = exports.usuarioDelete = exports.usuarioSearch = exports.usuarioGetAll = exports.UsuariosPost = void 0;
+const express_validator_1 = require("express-validator");
+const mongoose_1 = __importDefault(require("mongoose"));
+const job_1 = require("../models/job");
 const role_1 = require("../models/role");
 const usuarios_1 = require("../models/usuarios");
 const { response, request } = require('express');
 const bcryptjs = require('bcryptjs');
 const Usuario = require('../models/role');
 const UsuariosPost = (req = request, res = response) => __awaiter(void 0, void 0, void 0, function* () {
-    const { nombre, apellidoPaterno, apellidoMaterno, correo, password, rol } = req.body;
+    const errors = (0, express_validator_1.validationResult)(req);
+    if (!errors.isEmpty()) {
+        return res.json({ errors });
+    }
+    const { nombre, apellidoPaterno, apellidoMaterno, correo, password, rol, puesto: id } = req.body;
     const rolId = yield role_1.RoleModel.findOne({ "key": rol });
-    if (!rolId) {
-        return res.json({
-            msg: "El rol es inexistente"
-        });
+    if (rolId.level == 2) {
+        if (id == null || id == undefined || id == "") {
+            return res.json({
+                msg: "Se necesita un puesto designado para los empleados."
+            });
+        }
+        const job = yield job_1.jobModel.findOne({ _id: new mongoose_1.default.Types.ObjectId(id) });
+        if (!job) {
+            return res.json({
+                msg: "El puesto establecido es inexistente."
+            });
+        }
+        try {
+            const id = rolId._id;
+            const user = new usuarios_1.usuarioModel({ nombre, apellidoPaterno, apellidoMaterno, correo, password, "rol": id, status: true, puesto: id });
+            const salt = bcryptjs.genSaltSync();
+            user.password = bcryptjs.hashSync(password, salt);
+            yield user.save();
+            return res.json(user);
+        }
+        catch (error) {
+            return res.send(error);
+        }
     }
-    try {
-        const id = rolId._id;
-        const user = new usuarios_1.usuarioModel({ nombre, apellidoPaterno, apellidoMaterno, correo, password, "rol": id, status: true });
-        const salt = bcryptjs.genSaltSync();
-        user.password = bcryptjs.hashSync(password, salt);
-        yield user.save();
-        return res.json(user);
-    }
-    catch (error) {
-        return res.send(error);
+    else {
+        try {
+            const id = rolId._id;
+            const user = new usuarios_1.usuarioModel({ nombre, apellidoPaterno, apellidoMaterno, correo, password, "rol": id, status: true });
+            const salt = bcryptjs.genSaltSync();
+            user.password = bcryptjs.hashSync(password, salt);
+            yield user.save();
+            return res.json(user);
+        }
+        catch (error) {
+            return res.send(error);
+        }
     }
 });
 exports.UsuariosPost = UsuariosPost;
@@ -49,13 +80,20 @@ exports.usuarioSearch = usuarioSearch;
 const usuarioDelete = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     const users = yield usuarios_1.usuarioModel.findOne({ "_id": id });
+    if (!users) {
+        return res.json({ msg: "No se encontro el usuario indicado." });
+    }
     users.status = !users.status;
     users.save();
     return res.json(users);
 });
 exports.usuarioDelete = usuarioDelete;
 const UsuariosUpdate = (req = request, res = response) => __awaiter(void 0, void 0, void 0, function* () {
-    const { nombre, apellidoPaterno, apellidoMaterno, correo, rol } = req.body;
+    const errors = (0, express_validator_1.validationResult)(req);
+    if (!errors.isEmpty()) {
+        return res.json({ errors });
+    }
+    const { nombre, apellidoPaterno, apellidoMaterno, correo, rol, puesto } = req.body;
     const { id } = req.params;
     const rolId = yield role_1.RoleModel.findOne({ "key": rol });
     if (!rolId) {
@@ -63,19 +101,47 @@ const UsuariosUpdate = (req = request, res = response) => __awaiter(void 0, void
             msg: "El rol es inexistente"
         });
     }
-    try {
-        const idrol = rolId._id;
-        const user = yield usuarios_1.usuarioModel.findOne({ "_id": id });
-        user.nombre = nombre;
-        user.apellidoPaterno = apellidoPaterno;
-        user.apellidoMaterno = apellidoMaterno;
-        user.correo = correo;
-        user.rol = idrol;
-        user.save();
-        return res.json(user);
+    if (rolId.level == 2) {
+        if (puesto == null || puesto == undefined || puesto == "") {
+            return res.json({
+                msg: "Se necesita un puesto designado para los empleados."
+            });
+        }
+        const job = yield job_1.jobModel.findOne({ _id: new mongoose_1.default.Types.ObjectId(id) });
+        if (!job) {
+            return res.json({
+                msg: "El puesto establecido es inexistente."
+            });
+        }
+        try {
+            const idrol = rolId._id;
+            const user = yield usuarios_1.usuarioModel.findOne({ "_id": id });
+            user.nombre = nombre;
+            user.apellidoPaterno = apellidoPaterno;
+            user.apellidoMaterno = apellidoMaterno;
+            user.correo = correo;
+            user.puesto = puesto;
+            user.save();
+            return res.json(user);
+        }
+        catch (error) {
+            return res.send(error);
+        }
     }
-    catch (error) {
-        return res.send(error);
+    else {
+        try {
+            const idrol = rolId._id;
+            const user = yield usuarios_1.usuarioModel.findOne({ "_id": id });
+            user.nombre = nombre;
+            user.apellidoPaterno = apellidoPaterno;
+            user.apellidoMaterno = apellidoMaterno;
+            user.correo = correo;
+            user.save();
+            return res.json(user);
+        }
+        catch (error) {
+            return res.send(error);
+        }
     }
 });
 exports.UsuariosUpdate = UsuariosUpdate;

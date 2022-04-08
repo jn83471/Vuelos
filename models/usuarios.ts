@@ -28,6 +28,10 @@ const UsuarioSchema = Schema({
         ref:"Roles",
         required: true,
     },
+    puesto:{
+        type: mongoose.Schema.Types.ObjectId,
+        ref:"Job",
+    },
     status:{
         type:Boolean,
         required: [true,"Se necesita saber el estado de la cuenta"],

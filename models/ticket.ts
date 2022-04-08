@@ -5,7 +5,7 @@ const { Schema, model } = require('mongoose');
 const TicketSchema = Schema({
     vuelo: {
         type: mongoose.Schema.Types.ObjectId,
-        ref:"Roles",
+        ref:"Planes",
         required: true,
     },
     cliente: {
@@ -27,7 +27,7 @@ const TicketSchema = Schema({
     Asiento:{
         type: String,
     },
-    Estatus:{
+    estatus:{
         type:Number,
         required:[true,"Se necesita un estatus para continuar"]
     }

@@ -14,6 +14,12 @@ const usuarios_1 = require("../models/usuarios");
 const { response, request } = require('express');
 const jwt = require('jsonwebtoken');
 const Usuario = require('../models/usuarios');
+const validateUrl = (url, usuario) => {
+    if (url == "/api/usuarios" && usuario.rol.level == 2 && usuario.puesto.controlUsuarios) {
+        return true;
+    }
+    return false;
+};
 const jwtValidator = (req = request, res = response, next) => __awaiter(void 0, void 0, void 0, function* () {
     const token = req.header('x-token');
     if (!token) {
@@ -24,7 +30,7 @@ const jwtValidator = (req = request, res = response, next) => __awaiter(void 0, 
     try {
         const { uid } = jwt.verify(token, process.env.SECRETORPRIVATEKEY);
         // leer el usuario que corresponde al uid
-        const usuario = yield usuarios_1.usuarioModel.findById(uid).populate('rol');
+        const usuario = yield usuarios_1.usuarioModel.findById(uid).populate('rol').populate('puesto');
         if (!usuario) {
             return res.status(401).json({
                 msg: 'Usuario no inexistente'
@@ -36,17 +42,18 @@ const jwtValidator = (req = request, res = response, next) => __awaiter(void 0, 
                 msg: 'Usuario se encuentra activo'
             });
         }
-        if (usuario.rol.level != 1) {
+        if (usuario.rol.level == 1 || (validateUrl(req.baseUrl, usuario))) {
+            next();
+        }
+        else {
             return res.status(401).json({
-                msg: 'Permisos insuficientes'
+                msg: 'Permisos insuficientes',
             });
         }
-        req.usuario = usuario;
-        next();
     }
     catch (error) {
         console.log(error);
-        res.status(401).json({
+        return res.status(401).json({
             msg: 'Token no válido'
         });
     }

@@ -9,57 +9,76 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ticketUpdate = exports.ticketDelete = exports.ticketSearch = exports.ticketGetAll = exports.ticketPost = void 0;
+exports.ticketUpdate = exports.ticketDelete = exports.ticketGetAll = exports.ticketPost = void 0;
+const express_validator_1 = require("express-validator");
 const ticket_1 = require("../models/ticket");
 const { response, request } = require('express');
 const ticketPost = (req = request, res = response) => __awaiter(void 0, void 0, void 0, function* () {
-    const { avionId, localizacion, municiopio, dia, diafinal, estado, status } = req.body;
+    const errors = (0, express_validator_1.validationResult)(req);
+    if (!errors.isEmpty()) {
+        return res.json({ errors });
+    }
+    const { vuelo, cliente, nombre, apellidoPaterno, apellidoMaterno, correo, Asiento, estatus = 0 } = req.body;
     try {
-        const flights = new ticket_1.ticketModel({ avionId, localizacion, municiopio, dia, diafinal, estado, status });
-        yield flights.save();
-        return res.json(flights);
+        if (cliente != null && cliente != "" && cliente != undefined) {
+            const ticket = new ticket_1.ticketModel({ vuelo, cliente, Asiento, estatus });
+            yield ticket.save();
+            return res.json(ticket);
+        }
+        else {
+            if (!nombre)
+                return res.json({ msg: "Se require un nombre" });
+            if (!apellidoPaterno)
+                return res.json({ msg: "Se require un apellido paterno" });
+            if (!apellidoMaterno)
+                return res.json({ msg: "Se require un apellido materno" });
+            if (!correo)
+                return res.json({ msg: "Se require un correo" });
+            const ticket = new ticket_1.ticketModel({ vuelo, nombre, apellidoPaterno, apellidoMaterno, correo, Asiento, estatus });
+            yield ticket.save();
+            return res.json(ticket);
+        }
     }
     catch (error) {
-        return res.send(error);
+        return res.send("Error: " + error);
     }
 });
 exports.ticketPost = ticketPost;
 const ticketGetAll = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { per_page = 10, page = 0 } = req.query;
-    const skip = Number(per_page) * Number(page);
-    const job = yield ticket_1.ticketModel.find().limit(per_page).skip(skip);
-    return res.json(job);
+    const ticket = yield ticket_1.ticketModel.find().populate("cliente").populate("vuelo");
+    return res.json(ticket);
 });
 exports.ticketGetAll = ticketGetAll;
-const ticketSearch = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { per_page = 10, page = 0 } = req.query;
-    const skip = Number(per_page) * Number(page);
-    const job = yield ticket_1.ticketModel.find({ $or: [{ municiopio: { $regex: '.*' + req.params.name + '.*' } }, { estado: { $regex: '.*' + req.params.name + '.*' } }] }).limit(per_page).skip(skip);
-    return res.json(job);
-});
-exports.ticketSearch = ticketSearch;
 const ticketDelete = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
-    const job = yield ticket_1.ticketModel.findOne({ "_id": id });
-    job.status = (job.status == 0) ? 2 : (job.status == 1) ? 1 : 0;
-    job.save();
-    return res.json(job);
+    const ticket = yield ticket_1.ticketModel.findOne({ "_id": id }).populate("cliente").populate("vuelo");
+    ticket.estatus = (ticket.estatus == 0) ? 2 : (ticket.estatus == 1) ? 1 : 0;
+    //.0 -agendado
+    //.1 -confirmado
+    //.2 -cancelado
+    ticket.save();
+    return res.json(ticket);
 });
 exports.ticketDelete = ticketDelete;
 const ticketUpdate = (req = request, res = response) => __awaiter(void 0, void 0, void 0, function* () {
-    const { avionId, localizacion, municiopio, dia, diafinal, estado, status } = req.body;
+    const errors = (0, express_validator_1.validationResult)(req);
+    if (!errors.isEmpty()) {
+        return res.json({ errors });
+    }
+    //return res.json({"a":"a"});
+    const { vuelo, cliente, nombre, apellidoPaterno, apellidoMaterno, correo, Asiento } = req.body;
     const { id } = req.params;
     try {
-        const flights = yield ticket_1.ticketModel.findOne({ "_id": id });
-        flights.avionId = avionId;
-        flights.localizacion = localizacion;
-        flights.municiopio = municiopio;
-        flights.dia = dia;
-        flights.diafinal = diafinal;
-        flights.estado = estado;
-        flights.status = status;
-        flights.save();
-        return res.json(flights);
+        const ticket = yield ticket_1.ticketModel.findOne({ "_id": id });
+        ticket.vuelo = (vuelo != null && vuelo != "" && vuelo != undefined) ? vuelo : ticket.vuelo;
+        ticket.cliente = cliente;
+        ticket.nombre = nombre;
+        ticket.apellidoPaterno = apellidoPaterno;
+        ticket.apellidoMaterno = apellidoMaterno;
+        ticket.correo = correo;
+        ticket.Asiento = Asiento;
+        ticket.save();
+        return res.json(ticket);
     }
     catch (error) {
         return res.send(error);

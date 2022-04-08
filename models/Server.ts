@@ -1,3 +1,4 @@
+import { check } from 'express-validator';
 import express,{Application} from 'express';
 import cors from 'cors';
 import usuariosRouter from '../routes/auth.routes';
@@ -8,11 +9,11 @@ import JobRoute from '../routes/job.routes';
 import PlanesRouter from '../routes/planes.routes';
 import FlightsRouter from '../routes/flights.routes';
 import TicketRouter from '../routes/ticket.routes';
+import BagaggeRouter from '../routes/bagagge.routes';
 
 class Server{
     private app:Application;
     private port:String;
-    private jwt=require("jsonwebtoken");
     constructor(){
         this.app=express();
         this.port=process.env.PORT || "8080";
@@ -41,10 +42,11 @@ class Server{
         this.app.use("/api/planes/",PlanesRouter);
         this.app.use("/api/flights/",FlightsRouter);
         this.app.use("/api/ticket/",TicketRouter);
+        this.app.use("/api/bagagge/",BagaggeRouter);
     }
     listen(){
         this.app.listen(this.port,()=>{
-            console.log('servidor corriendo en'+this.port);
+            console.log('servidor corriendo en '+this.port);
         });
     }
     

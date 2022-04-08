@@ -3,38 +3,29 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ticketModel = void 0;
+exports.bagaggeModel = void 0;
 const mongoose_1 = __importDefault(require("mongoose"));
 const { Schema, model } = require('mongoose');
-const TicketSchema = Schema({
-    vuelo: {
+const BagaggeSchema = Schema({
+    boleto: {
         type: mongoose_1.default.Schema.Types.ObjectId,
-        ref: "Planes",
+        ref: "Ticket",
         required: true,
     },
-    cliente: {
-        type: mongoose_1.default.Schema.Types.ObjectId,
-        ref: "Usuario",
+    producto: {
+        type: String,
+        required: true,
     },
-    nombre: {
+    altura: {
         type: String,
     },
-    apellidoPaterno: {
-        type: String,
-    },
-    apellidoMaterno: {
-        type: String,
-    },
-    correo: {
-        type: String,
-    },
-    Asiento: {
+    peso: {
         type: String,
     },
     estatus: {
         type: Number,
-        required: [true, "Se necesita un estatus para continuar"]
+        required: true,
     }
 });
-exports.ticketModel = model('Ticket', TicketSchema);
-//# sourceMappingURL=ticket.js.map
+exports.bagaggeModel = model('Bagagge', BagaggeSchema);
+//# sourceMappingURL=bagagge.js.map

@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { validationResult } from "express-validator";
 import { flightsModel } from "../models/flights";
 import { jobModel } from "../models/job";
 import { RoleModel } from "../models/role";
@@ -8,7 +9,11 @@ const { response, request } = require('express');
 
 
 export const flightsPost = async(req:Request = request, res:Response = response) => {
-    const {avionId,localizacion,municiopio,dia,diafinal,estado,status}=req.body;
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.json({errors});
+    }
+    const {avionId,localizacion,municiopio,dia,diafinal,estado,status=0}=req.body;
     try{
         const flights:any=new flightsModel({avionId,localizacion,municiopio,dia,diafinal,estado,status});
         await flights.save();
@@ -34,12 +39,19 @@ export const flightsSearch =async (req:Request,res:Response)=>{
 export const flightsDelete=async (req:Request,res:Response)=>{
     const { id } = req.params;
     const job=await flightsModel.findOne({"_id":id});
+    if(!job){
+        return res.json({msg:"No se encontro el vuelo especificado"});
+    }
     job.status=(job.status==0)?2:(job.status==1)?1:0;
     job.save();
     return res.json(job);
 }
 
 export const flightsUpdate = async(req:Request = request, res:Response = response) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.json({errors});
+    }
     const {avionId,localizacion,municiopio,dia,diafinal,estado,status}=req.body;
     const {id}= req.params;
     try{
@@ -50,7 +62,7 @@ export const flightsUpdate = async(req:Request = request, res:Response = respons
         flights.dia=dia;
         flights.diafinal=diafinal;
         flights.estado=estado;
-        flights.status=status;
+        flights.status=(status==null || status==undefined || status=="")?flights.status:status;
         flights.save();
         return res.json(flights);
     }

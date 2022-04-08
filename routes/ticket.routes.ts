@@ -1,23 +1,29 @@
 import {Router} from 'express'
-import { ticketPost,ticketGetAll,ticketSearch,ticketDelete,ticketUpdate } from '../controllers/ticket.controller';
+import { check } from 'express-validator';
+import { ticketPost,ticketGetAll,ticketDelete,ticketUpdate } from '../controllers/ticket.controller';
+import { ClientValidation } from '../middlewares/dbMiddlewares';
 import { jwtValidator } from '../middlewares/jwtValidator';
 const TicketRouter:Router=Router();
 
-TicketRouter.post('/create', ticketPost);
+TicketRouter.post('/create',[
+    check("vuelo","Se requiere el atributo vuelo").not().isEmpty(),
+    check("Asiento","Se requiere el atributo Asiento").not().isEmpty(),
+    jwtValidator,
+    ClientValidation
+], ticketPost);
 TicketRouter.get('/',[
     jwtValidator
 ],
 ticketGetAll);
-TicketRouter.get('/:name',[
-    jwtValidator
-],
-ticketSearch);
 TicketRouter.delete('/:id',[
     jwtValidator
 ],
 ticketDelete);
 TicketRouter.put('/:id',[
-    TicketRouter
+    check("vuelo","Se requiere el atributo vuelo").not().isEmpty(),
+    check("Asiento","Se requiere el atributo Asiento").not().isEmpty(),
+    jwtValidator,
+    ClientValidation
 ],
 ticketUpdate);
 

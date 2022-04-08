@@ -1,10 +1,14 @@
 import {Router} from 'express'
+import { check } from 'express-validator';
 
 import { JobPost,JobGetAll,JobSearch,JobDelete,JobUpdate } from '../controllers/job.controller';
 import { jwtValidator } from '../middlewares/jwtValidator';
 const JobRoute:Router=Router();
 
-JobRoute.post('/create', JobPost);
+JobRoute.post('/create',[
+    check("name","Se necesita un name para continuar.").not().isEmpty(),
+    jwtValidator
+], JobPost);
 JobRoute.get('/',[
     jwtValidator
 ],
@@ -18,6 +22,7 @@ JobRoute.delete('/:id',[
 ],
 JobDelete);
 JobRoute.put('/:id',[
+    check("name","Se necesita un name para continuar.").not().isEmpty(),
     jwtValidator
 ],
 JobUpdate);
