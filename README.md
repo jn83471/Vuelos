@@ -26,30 +26,30 @@
 >
 >>Metodo: Post Ruta:/
 >>
->>><pre>
+>>>```
 {
     "correo":"Email",
     "password":"Contraseña"
 }
-</pre>
+```
 2. Roles
 >Roles de usuario
 >
 >>Metodo: POST Ruta:/api/roles
 >>
->>><pre>
+>>>```
 {
     "displayname":"Nombre ",
     "key":"Llave de identificación",
     "level": 1 **Nota:Nivel(1:Admin, 2:Empleados, 3:Clientes) Se tiene pensado agregar más para datos fiscales o casos de mejora**
 }
-</pre>
+```
 3. Puestos
 >Puestos de trabajo
 >
 >>Metodo: Post Ruta: /api/job/create
 >>
->>><pre>
+>>>```
 {
     "name":"Jefe de Mantenimientoa",
     "controlUsuarios":false, **Control sobre usuarios "incluye clientes"**
@@ -59,7 +59,7 @@
     "EstatusAviones":1, **Modificar el estado del avion a en reparación o en vuelo**
     "Estatus":1 **Si se encuentra activo**
 }
-</pre>
+```
 >>Metodo: Get Ruta: /api/job
 >>
 >>>Headers: x-token:"Token de acceso"
