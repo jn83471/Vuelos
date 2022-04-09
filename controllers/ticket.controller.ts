@@ -60,6 +60,9 @@ export const ticketUpdate = async(req:Request = request, res:Response = response
     
     try{
         const ticket=await ticketModel.findOne({"_id":id});
+        if(!ticket){
+            return res.json({msg:"No se encontro el ticket especificado"});
+        }
         ticket.vuelo=(vuelo!=null && vuelo!="" && vuelo!=undefined )?vuelo:ticket.vuelo;
         ticket.cliente=cliente;
         ticket.nombre=nombre;

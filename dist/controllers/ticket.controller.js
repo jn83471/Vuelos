@@ -70,6 +70,9 @@ const ticketUpdate = (req = request, res = response) => __awaiter(void 0, void 0
     const { id } = req.params;
     try {
         const ticket = yield ticket_1.ticketModel.findOne({ "_id": id });
+        if (!ticket) {
+            return res.json({ msg: "No se encontro el ticket especificado" });
+        }
         ticket.vuelo = (vuelo != null && vuelo != "" && vuelo != undefined) ? vuelo : ticket.vuelo;
         ticket.cliente = cliente;
         ticket.nombre = nombre;

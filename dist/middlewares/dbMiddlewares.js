@@ -50,8 +50,8 @@ const CorreoValidation = (req = request, res = response, next) => __awaiter(void
 });
 exports.CorreoValidation = CorreoValidation;
 const PlaneValidation = (req = request, res = response, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const { avionId: id } = req.body;
-    const plane = yield planes_1.planesModel.findOne({ "_id": id });
+    const { avionId: id, vuelo } = req.body;
+    const plane = yield planes_1.planesModel.findOne({ "_id": id || vuelo });
     if (!plane) {
         return res.status(401).json({
             msg: "El indice del avion no es existente."

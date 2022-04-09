@@ -29,3 +29,4 @@ const jobSchema = Schema({
 });
 
 export const jobModel= model( 'Job', jobSchema );
+

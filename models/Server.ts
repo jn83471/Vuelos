@@ -10,6 +10,7 @@ import PlanesRouter from '../routes/planes.routes';
 import FlightsRouter from '../routes/flights.routes';
 import TicketRouter from '../routes/ticket.routes';
 import BagaggeRouter from '../routes/bagagge.routes';
+import { seed } from './seed';
 
 class Server{
     private app:Application;
@@ -23,6 +24,8 @@ class Server{
     }
     async dbConnerction(){
         await dbConnection();
+        
+
     }
     middlewares(){
         //cors
@@ -32,6 +35,7 @@ class Server{
         this.app.use(express.json())
         //carpeta publica
         this.app.use(express.static('public'));
+        
     }
     routes(){
         

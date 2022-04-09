@@ -1,13 +1,11 @@
+
 const mongoose = require('mongoose');
-
-
 
 export const dbConnection = async() => {
 
     try {
 
         await mongoose.connect( "mongodb://localhost:27017/vuelos",{});
-    
         console.log('Base de datos online');
 
     } catch (error) {

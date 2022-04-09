@@ -57,6 +57,9 @@ export const JobUpdate = async(req:Request = request, res:Response = response) =
     const {id}= req.params;
     try{
         const user=await jobModel.findOne({"_id":id});
+        if(!user){
+            return res.json({msg:"No se encontro el avion especificado"});
+        }
         user.name=name;
         user.controlUsuarios=controlUsuarios;
         user.controlClientes=controlClientes;

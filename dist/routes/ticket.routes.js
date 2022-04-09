@@ -10,7 +10,8 @@ TicketRouter.post('/create', [
     (0, express_validator_1.check)("vuelo", "Se requiere el atributo vuelo").not().isEmpty(),
     (0, express_validator_1.check)("Asiento", "Se requiere el atributo Asiento").not().isEmpty(),
     jwtValidator_1.jwtValidator,
-    dbMiddlewares_1.ClientValidation
+    dbMiddlewares_1.ClientValidation,
+    dbMiddlewares_1.PlaneValidation
 ], ticket_controller_1.ticketPost);
 TicketRouter.get('/', [
     jwtValidator_1.jwtValidator
@@ -22,7 +23,8 @@ TicketRouter.put('/:id', [
     (0, express_validator_1.check)("vuelo", "Se requiere el atributo vuelo").not().isEmpty(),
     (0, express_validator_1.check)("Asiento", "Se requiere el atributo Asiento").not().isEmpty(),
     jwtValidator_1.jwtValidator,
-    dbMiddlewares_1.ClientValidation
+    dbMiddlewares_1.ClientValidation,
+    dbMiddlewares_1.PlaneValidation
 ], ticket_controller_1.ticketUpdate);
 exports.default = TicketRouter;
 //# sourceMappingURL=ticket.routes.js.map

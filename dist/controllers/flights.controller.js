@@ -63,6 +63,9 @@ const flightsUpdate = (req = request, res = response) => __awaiter(void 0, void 
     const { id } = req.params;
     try {
         const flights = yield flights_1.flightsModel.findOne({ "_id": id });
+        if (!flights) {
+            return res.json({ msg: "No se encontro el vuelo especificado" });
+        }
         flights.avionId = avionId;
         flights.localizacion = localizacion;
         flights.municiopio = municiopio;

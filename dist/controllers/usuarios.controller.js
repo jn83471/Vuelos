@@ -26,15 +26,15 @@ const UsuariosPost = (req = request, res = response) => __awaiter(void 0, void 0
     if (!errors.isEmpty()) {
         return res.json({ errors });
     }
-    const { nombre, apellidoPaterno, apellidoMaterno, correo, password, rol, puesto: id } = req.body;
+    const { nombre, apellidoPaterno, apellidoMaterno, correo, password, rol, puesto } = req.body;
     const rolId = yield role_1.RoleModel.findOne({ "key": rol });
     if (rolId.level == 2) {
-        if (id == null || id == undefined || id == "") {
+        if (puesto == null || puesto == undefined || puesto == "") {
             return res.json({
                 msg: "Se necesita un puesto designado para los empleados."
             });
         }
-        const job = yield job_1.jobModel.findOne({ _id: new mongoose_1.default.Types.ObjectId(id) });
+        const job = yield job_1.jobModel.findOne({ _id: new mongoose_1.default.Types.ObjectId(puesto) });
         if (!job) {
             return res.json({
                 msg: "El puesto establecido es inexistente."
@@ -42,7 +42,7 @@ const UsuariosPost = (req = request, res = response) => __awaiter(void 0, void 0
         }
         try {
             const id = rolId._id;
-            const user = new usuarios_1.usuarioModel({ nombre, apellidoPaterno, apellidoMaterno, correo, password, "rol": id, status: true, puesto: id });
+            const user = new usuarios_1.usuarioModel({ nombre, apellidoPaterno, apellidoMaterno, correo, password, "rol": id, status: true, puesto });
             const salt = bcryptjs.genSaltSync();
             user.password = bcryptjs.hashSync(password, salt);
             yield user.save();
@@ -116,6 +116,9 @@ const UsuariosUpdate = (req = request, res = response) => __awaiter(void 0, void
         try {
             const idrol = rolId._id;
             const user = yield usuarios_1.usuarioModel.findOne({ "_id": id });
+            if (!user) {
+                return res.json({ msg: "No se encontro el usuario especificado" });
+            }
             user.nombre = nombre;
             user.apellidoPaterno = apellidoPaterno;
             user.apellidoMaterno = apellidoMaterno;

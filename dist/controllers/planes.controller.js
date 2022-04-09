@@ -65,6 +65,9 @@ const PlanesUpdate = (req = request, res = response) => __awaiter(void 0, void 0
     const { id } = req.params;
     try {
         const planes = yield planes_1.planesModel.findOne({ "_id": id });
+        if (!planes) {
+            return res.json({ msg: "No se encontro el avion especificado" });
+        }
         planes.matricula = matricula;
         planes.nombre = nombre;
         planes.modelo = modelo;

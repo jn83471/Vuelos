@@ -18,7 +18,6 @@ const planesSchema = Schema({
     capacidadMaxima: {
         type: Number,
         required: [true, 'La capacidad maxima es requerida'],
-        unique: true
     },
     Estatus: {
         type: Number,

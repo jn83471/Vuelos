@@ -60,6 +60,9 @@ export const PlanesUpdate = async(req:Request = request, res:Response = response
     const {id}= req.params;
     try{
         const planes=await planesModel.findOne({"_id":id});
+        if(!planes){
+            return res.json({msg:"No se encontro el avion especificado"});
+        }
         planes.matricula=matricula;
         planes.nombre=nombre;
         planes.modelo=modelo;

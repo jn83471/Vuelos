@@ -17,15 +17,15 @@ export const UsuariosPost = async(req:Request = request, res:Response = response
     if (!errors.isEmpty()) {
         return res.json({errors});
     }
-    const {nombre, apellidoPaterno, apellidoMaterno, correo,password,rol,puesto:id}=req.body;
+    const {nombre, apellidoPaterno, apellidoMaterno, correo,password,rol,puesto}=req.body;
     const rolId=await RoleModel.findOne({"key":rol});
     if(rolId.level==2){
-        if(id==null || id==undefined || id==""){
+        if(puesto==null || puesto==undefined || puesto==""){
             return res.json({
                 msg:"Se necesita un puesto designado para los empleados."
             })
         }
-        const job=await jobModel.findOne({_id:new mongoose.Types.ObjectId(id)});
+        const job=await jobModel.findOne({_id:new mongoose.Types.ObjectId(puesto)});
         if(!job){
             return res.json({
                 msg:"El puesto establecido es inexistente."
@@ -33,7 +33,7 @@ export const UsuariosPost = async(req:Request = request, res:Response = response
         }
         try{
             const id:String=rolId._id;
-            const user:any=new usuarioModel({nombre,apellidoPaterno,apellidoMaterno,correo,password,"rol":id,status:true,puesto:id});
+            const user:any=new usuarioModel({nombre,apellidoPaterno,apellidoMaterno,correo,password,"rol":id,status:true,puesto});
             const salt = bcryptjs.genSaltSync();
             user.password = bcryptjs.hashSync( password, salt );
             await user.save();
@@ -107,6 +107,9 @@ export const UsuariosUpdate = async(req:Request = request, res:Response = respon
         try{
             const idrol:String=rolId._id;
             const user=await usuarioModel.findOne({"_id":id});
+            if(!user){
+                return res.json({msg:"No se encontro el usuario especificado"});
+            }
             user.nombre=nombre;
             user.apellidoPaterno=apellidoPaterno;
             user.apellidoMaterno=apellidoMaterno;

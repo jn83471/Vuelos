@@ -14,12 +14,32 @@ const usuarios_1 = require("../models/usuarios");
 const { response, request } = require('express');
 const jwt = require('jsonwebtoken');
 const Usuario = require('../models/usuarios');
-const validateUrl = (url, usuario) => {
+const validateUrl = (url, usuario, req) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log(usuario);
     if (url == "/api/usuarios" && usuario.rol.level == 2 && usuario.puesto.controlUsuarios) {
         return true;
     }
+    else if (url == "/api/planes" && usuario.rol.level == 2 && usuario.puesto.EstatusAviones) {
+        return true;
+    }
+    else if (url == "/api/ticket" && usuario.rol.level == 2 && usuario.puesto.controlBoletos) {
+        return true;
+    }
+    else if (url == "/api/usuarios" && usuario.rol.level == 2 && usuario.puesto.controlClientes && req.method == "PUT") {
+        const { id } = req.params;
+        const user = yield usuarios_1.usuarioModel.findById(id).populate('rol');
+        console.log("es");
+        console.log(user);
+        if (user) {
+            if (user.rol.level == 3) {
+                console.log(" es");
+                return true;
+            }
+            console.log("no es");
+        }
+    }
     return false;
-};
+});
 const jwtValidator = (req = request, res = response, next) => __awaiter(void 0, void 0, void 0, function* () {
     const token = req.header('x-token');
     if (!token) {
@@ -42,7 +62,8 @@ const jwtValidator = (req = request, res = response, next) => __awaiter(void 0, 
                 msg: 'Usuario se encuentra activo'
             });
         }
-        if (usuario.rol.level == 1 || (validateUrl(req.baseUrl, usuario))) {
+        const permition = yield validateUrl(req.baseUrl, usuario, req);
+        if (usuario.rol.level == 1 || (permition)) {
             next();
         }
         else {

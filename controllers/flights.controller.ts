@@ -56,6 +56,9 @@ export const flightsUpdate = async(req:Request = request, res:Response = respons
     const {id}= req.params;
     try{
         const flights=await flightsModel.findOne({"_id":id});
+        if(!flights){
+            return res.json({msg:"No se encontro el vuelo especificado"});
+        }
         flights.avionId=avionId;
         flights.localizacion=localizacion;
         flights.municiopio=municiopio;

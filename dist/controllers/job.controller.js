@@ -61,6 +61,9 @@ const JobUpdate = (req = request, res = response) => __awaiter(void 0, void 0, v
     const { id } = req.params;
     try {
         const user = yield job_1.jobModel.findOne({ "_id": id });
+        if (!user) {
+            return res.json({ msg: "No se encontro el avion especificado" });
+        }
         user.name = name;
         user.controlUsuarios = controlUsuarios;
         user.controlClientes = controlClientes;

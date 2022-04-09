@@ -39,8 +39,8 @@ export const CorreoValidation= async (req:any = request, res:Response = response
     
 }
 export const PlaneValidation = async( req:Request = request, res:Response = response, next:NextFunction ) => {
-    const {avionId:id}=req.body;
-    const plane= await planesModel.findOne({"_id":id});
+    const {avionId:id, vuelo}=req.body;
+    const plane= await planesModel.findOne({"_id":id || vuelo});
     if(!plane){
         return res.status(401).json({
             msg:"El indice del avion no es existente."
