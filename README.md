@@ -278,3 +278,6 @@ Opcion 2:
 
 ### Futuras mejoras
 
+1. Agregar el modulo de equipaje a la creacion de boleto
+2. Añadir funcionalidad a los viajes corporaticos
+3. Utilizar interfaces a las peticiones en mongosse
